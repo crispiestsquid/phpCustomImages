@@ -2,13 +2,19 @@
 
 $string = $_GET['text'];
 
+$size   = $_GET['size'];
+
+$font   = 'fonts/AndallanDemo.ttf';
+
+$fname = $_GET['fname'];
+
+$ext = $_GET['ext'];
+
+$image = "images/{$fname}.{$ext}";
+
 $xoffset      = $_GET['x'];
 
 $yoffset      = $_GET['y'];
-
-$font   = 'fonts/AfternooninStereoPersonalUse.ttf';
-
-$size   = $_GET['size'];
 
 $checked = $_GET['checked'];
 
@@ -18,7 +24,7 @@ $width  = abs($box[0] + $box[2]);
 
 $height = abs($box[7] + $box[1]);
 
-$im     = imagecreatefromjpeg('images/thanksgiving.jpg');
+$im     = imagecreatefromjpeg($image);
 
 $overlay  = imagecreatefrompng('images/thanksgiving-overlay.png');
 
@@ -37,12 +43,11 @@ imagettftext($im, $size, 0, $x, $y, $white, $font, $string);
 if ($checked == 'true') {
 imagecopy($im, $overlay, 0, 0, 0, 0, imagesx($overlay), imagesy($overlay));
 }
+
 header('Content-type: image/png');
 
 imagepng($im);
 
 imagedestroy($im);
-
-//imagedestroy($check);
 
 ?>

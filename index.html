@@ -2,12 +2,25 @@
 <html>
 <head>
 <meta charset="UTF-8">
+<script src="upload.js"></script>
+<link rel="stylesheet" type="text/css" href="main.css" >
 <title>Untitled Document</title>
 </head>
 
 <body>
-
-    <img src="custom_button.php?text=Nicholas&x=0&y=15&size=65&checked=true" alt="Button" />
+    
+    <div id="drop-area">
+        <form class="my-form">
+            <p>Upload multiple files with the file dialog or by dragging and dropping images onto the dashed region</p>
+            <input type="file" id="fileElem" multiple accept="image/*">
+            <label class="button" for="fileElem">Select some files</label>
+        </form>
+        <progress id="progress-bar" max="100" value="0"></progress>
+        <div id="gallery"></div>
+    </div>
+    <div id="images"></div>
+    
+    <img src="custom_image.php?text=Ben&size=75&fname=thanksgiving&ext=jpg&x=0&y=15&checked=true" alt="Test" />
     
 </body>
 </html>
