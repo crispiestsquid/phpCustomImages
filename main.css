@@ -54,5 +54,8 @@ p {
 #fileElem {
   display: none;
 }
+.selected {
+    border: thick solid #0CF505;
+}
 
 

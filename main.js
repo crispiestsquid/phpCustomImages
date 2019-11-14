@@ -1,5 +1,5 @@
 // JavaScript Document
-window.onload = init;
+window.addEventListener('load', init);
 
 
 function init() {
