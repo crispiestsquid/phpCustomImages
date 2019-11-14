@@ -4,11 +4,11 @@ window.addEventListener('load', init);
 
 function init() {
     
-    let dropArea = document.getElementById('drop-area');
-    let filesDone = 0;
-    let filesToDo = 0;
-    let progressBar = document.getElementById('progress-bar');
-    let fileInput = document.getElementById('fileElem');
+    var dropArea = document.getElementById('drop-area');
+    var filesDone = 0;
+    var filesToDo = 0;
+    var progressBar = document.getElementById('progress-bar');
+    var fileInput = document.getElementById('fileElem');
     
     retrieveImages();
     
@@ -43,8 +43,8 @@ function init() {
     dropArea.addEventListener('drop', handleDrop, false);
 
     function handleDrop(e) {
-        let dt = e.dataTransfer;
-        let files = dt.files;
+        var dt = e.dataTransfer;
+        var files = dt.files;
 
         handleFiles(files);
     }
@@ -53,9 +53,9 @@ function init() {
         
         initializeProgress(files.length);
 
-        for (let i = 0; i < files.length; i++) {
+        for (var i = 0; i < files.length; i++) {
             
-            let file = files[i]
+            var file = files[i]
             uploadFile(file);
             previewFile(file);
         }
@@ -63,8 +63,8 @@ function init() {
     
     function uploadFile(file) {
         
-        let url = 'process.php'
-        let formData = new FormData()
+        var url = 'process.php'
+        var formData = new FormData()
 
         formData.append('files[]', file)
 
@@ -78,10 +78,10 @@ function init() {
 
     
     function previewFile(file) {
-        let reader = new FileReader();
+        var reader = new FileReader();
         reader.readAsDataURL(file);
         reader.onloadend = function() {
-            let img = document.createElement('img');
+            var img = document.createElement('img');
             img.src = reader.result;
             document.getElementById('gallery').appendChild(img);
         }
@@ -138,6 +138,7 @@ function retrieveImages() {
                 var img = document.createElement('img');
                 img.src = images[rowStart + j][1];
                 img.alt = images[rowStart + j][0];
+                img.className = 'unselected';
                 td.appendChild(img);
                 tr.appendChild(td);
                 
@@ -153,11 +154,42 @@ function retrieveImages() {
         
         imageArea.innerHTML = '';
         imageArea.appendChild(imageTable);
+        
+        
+        document.querySelectorAll('.unselected').forEach(item => {
+            item.addEventListener('click', event => {
+                // set all selected images to unselected
+                document.querySelectorAll('.selected').forEach(selected => {
+                    selected.className = 'unselected';
+                });
+                // change the current image to selected
+                item.className = 'selected';
+                
+                // update the sample image
+                var options = {
+                    text: 'sample',
+                    size: 75,
+                    fname: item.alt.split('.')[0],
+                    ext: item.alt.split('.')[1],
+                    x: 0,
+                    y: 0,
+                    checked: false
+                };
+                
+                updateSample(options);
+            });
+        });
     };
     req.open('get', 'retrieve-images.php', true);
     //                                       ^ Don't block the rest of the execution.
     //                                         Don't wait until the request finishes to
     //                                         continue.
     req.send();
+}
+
+function updateSample(options) {
     
+    var sample = document.getElementById('sample');
+    
+    sample.src = 'custom_image.php?text=' + options.text + '&size=' + options.size + '&fname=' + options.fname + '&ext=' + options.ext + '&x=' + options.x + '&y=' + options.y + '&checked=' + options.checked;
 }
