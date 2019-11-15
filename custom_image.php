@@ -32,6 +32,8 @@ if ($ext == 'jpg'){
 else if ($ext == 'png') {
     
     $im = imagecreatefrompng($image);
+    imagealphablending($im, true);
+    imagesavealpha($im, true);
     $contentType = 'image/png';
 }
 
@@ -39,8 +41,14 @@ else if ($ext == 'png') {
 $overlay = imagecreatefrompng('images/thanksgiving-overlay.png');
 
 $white = imagecolorallocate($im, 255, 255, 255);
+if ($white === FALSE) { // note the === -> strict type comparison
+    $white = imagecolorclosest($im, 255, 255, 255);
+}
 
 $grey = imagecolorallocate($im, 148, 107, 3);
+if ($grey === FALSE) { // note the === -> strict type comparison
+    $grey = imagecolorclosest($im, 148, 107, 3);
+}
 
 $x = (imagesx($im) / 2) - ($width / 2) + $xoffset;
 
