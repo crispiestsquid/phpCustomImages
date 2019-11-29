@@ -1,6 +1,15 @@
 // JavaScript Document
 window.addEventListener('load', init);
 
+var text;
+var size;
+var font;
+var color;
+var fname;
+var ext;
+var x;
+var y;
+var linkDisplay;
 
 function init() {
     
@@ -9,8 +18,67 @@ function init() {
     var filesToDo = 0;
     var progressBar = document.getElementById('progress-bar');
     var fileInput = document.getElementById('fileElem');
+    var updateBtn = document.getElementById('update');
+    linkDisplay = document.getElementById('link');
+    text = document.getElementById('text').value;
+    size = document.getElementById('size').value;
+    var colorInput = document.getElementById('color');
+    var fontSelect = document.getElementById('font');
+    color = 'ffffff';
+    colorInput.value = '#' + color;
+    fname = 'image-placeholder';
+    ext = 'png';
+    x = document.getElementById('x').value;
+    y = document.getElementById('y').value;
+    
+    document.addEventListener("click", closeAllSelect);
+    
+    fontSelect.onchange = function () {
+        //Testing fonts
+        
+        var ffName = fontSelect.value.split('/')[1].split('.')[0];
+        var ffUrl = 'url(' + fontSelect.value + ')';
+        var fontFace = new FontFace(ffName, ffUrl);
+        fontFace.load().then(function(loaded_face) {
+            document.fonts.add(loaded_face);
+            document.getElementById('test').style.fontFamily = ffName + ', Verdana';
+        }).catch(function(error) {
+            // error occurred
+            alert(error);
+        });
+    }
+    
+    colorInput.onchange = function () {
+        color = colorInput.value.split('#')[1];
+    }
+    
+    updateBtn.onclick = function (e) {
+        e.preventDefault();
+        
+        // get the values from the options
+        text = document.getElementById('text').value;
+        size = document.getElementById('size').value;
+        x = document.getElementById('x').value;
+        y = document.getElementById('y').value;
+        
+        // update the sample image
+        var options = {
+            text: text,
+            size: size,
+            font: font,
+            color: color,
+            fname: fname,
+            ext: ext,
+            x: x,
+            y: y
+        };
+                
+        updateSample(options);
+    }
     
     retrieveImages();
+    
+    retrieveFonts();
     
     fileInput.addEventListener('change', function(){handleFiles(this.files);});
 
@@ -32,11 +100,11 @@ function init() {
         dropArea.addEventListener(eventName, unhighlight, false)
     });
 
-    function highlight(e) {
+    function highlight() {
         dropArea.classList.add('highlight');
     }
 
-    function unhighlight(e) {
+    function unhighlight() {
         dropArea.classList.remove('highlight');
     }
     
@@ -55,7 +123,7 @@ function init() {
 
         for (var i = 0; i < files.length; i++) {
             
-            var file = files[i]
+            var file = files[i];
             uploadFile(file);
             previewFile(file);
         }
@@ -78,11 +146,18 @@ function init() {
 
     
     function previewFile(file) {
-        var reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onloadend = function() {
+        if (file.type.includes('image')){
+            var reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onloadend = function() {
+                var img = document.createElement('img');
+                img.src = reader.result;
+                document.getElementById('gallery').appendChild(img);
+            }
+        }
+        else {
             var img = document.createElement('img');
-            img.src = reader.result;
+            img.src = 'font-icon.png';
             document.getElementById('gallery').appendChild(img);
         }
     }
@@ -99,6 +174,7 @@ function init() {
         
         if (progressBar.value == 100) {
             retrieveImages();
+            retrieveFonts();
         }
     }
 }
@@ -114,8 +190,32 @@ function retrieveImages() {
         var images = JSON.parse(this.responseText);
         
         var imageArea = document.getElementById('images');
+        imageArea.innerHTML = '';
         
-        var imageTable = document.createElement('table');
+        for (var i = 0; i < images.length; i ++) {
+            
+            // create an image element and set its attributes
+            var thumbnail = document.createElement('div');
+            thumbnail.className = 'thumbnail';
+            var img = document.createElement('img');
+            img.src = images[i][1];
+            img.alt = images[i][0];
+            thumbnail.appendChild(img);
+            
+            //add the new image to the image area
+            if (img.alt == 'image-placeholder.png') {
+                thumbnail.classList.add('selected');
+                imageArea.insertBefore(thumbnail, imageArea.firstChild);
+            }
+            else {
+                thumbnail.classList.add('unselected');
+                imageArea.appendChild(thumbnail);
+            }
+        }
+        
+        
+        //Old way using table with set columns
+        /*var imageTable = document.createElement('table');
         
         var perRow = 3;
         
@@ -153,27 +253,33 @@ function retrieveImages() {
         }
         
         imageArea.innerHTML = '';
-        imageArea.appendChild(imageTable);
+        imageArea.appendChild(imageTable);*/
         
         
-        document.querySelectorAll('.unselected').forEach(item => {
+        document.querySelectorAll('.thumbnail').forEach(item => {
             item.addEventListener('click', event => {
                 // set all selected images to unselected
                 document.querySelectorAll('.selected').forEach(selected => {
-                    selected.className = 'unselected';
+                    selected.classList.remove('selected');
+                    selected.classList.add('unselected');
                 });
                 // change the current image to selected
-                item.className = 'selected';
+                item.classList.add('selected');
+                item.classList.remove('unselected');
+                
+                fname = item.firstChild.alt.split('.')[0];
+                ext = item.firstChild.alt.split('.')[1];
                 
                 // update the sample image
                 var options = {
-                    text: 'sample',
-                    size: 75,
-                    fname: item.alt.split('.')[0],
-                    ext: item.alt.split('.')[1],
-                    x: 0,
-                    y: 0,
-                    checked: false
+                    text: text,
+                    size: size,
+                    font: font,
+                    color: color,
+                    fname: fname,
+                    ext: ext,
+                    x: x,
+                    y: y
                 };
                 
                 updateSample(options);
@@ -187,9 +293,132 @@ function retrieveImages() {
     req.send();
 }
 
+function retrieveFonts() {
+    
+    // stuff for font retrieval
+
+    var req = new XMLHttpRequest(); // New request object
+    req.onload = function() {
+        // This is where you handle what to do with the response.
+        // The actual data is found on this.responseText
+        var fonts = JSON.parse(this.responseText);
+        
+        var fontSelect = document.getElementById('font');
+        fontSelect.innerHTML = '';
+        
+        for (var i = 0; i < fonts.length; i ++) {
+            
+            // create an option element and set its attributes
+            var option = document.createElement('option');
+            option.value = fonts[i][0].split('.')[0];
+            var span = document.createElement('span');
+            span.textContent = fonts[i][0].split('.')[0];
+            
+            var ffName = fonts[i][1].split('/')[1].split('.')[0];
+            var ffUrl = 'url(' + fonts[i][1] + ')';
+            var fontFace = new FontFace(ffName, ffUrl);
+            fontFace.load().then(function(loaded_face) {
+                document.fonts.add(loaded_face);
+            }).catch(function(error) {
+                // error occurred
+                alert(error);
+            });
+            span.style.fontFamily = ffName + ', Verdana';
+            option.appendChild(span);
+            
+            fontSelect.appendChild(option);
+        }
+        
+        font = fontSelect.options[0].value;
+    
+        initCustomSelects();
+    };
+    req.open('get', 'retrieve-fonts.php', true);
+    //                                       ^ Don't block the rest of the execution.
+    //                                         Don't wait until the request finishes to
+    //                                         continue.
+    req.send();
+}
+
 function updateSample(options) {
     
     var sample = document.getElementById('sample');
     
-    sample.src = 'custom_image.php?text=' + options.text + '&size=' + options.size + '&fname=' + options.fname + '&ext=' + options.ext + '&x=' + options.x + '&y=' + options.y + '&checked=' + options.checked;
+    sample.src = 'custom_image.php?text=' + options.text + '&size=' + options.size + '&font=' + options.font + '&color=' + options.color + '&fname=' + options.fname + '&ext=' + options.ext + '&x=' + options.x + '&y=' + options.y;
+        
+    linkDisplay.value = sample.src;
+}
+
+function initCustomSelects() {
+    
+    var customSelects = document.getElementsByClassName('custom-select'); // this is a list of divs with the class custom-select
+    
+    for (var i = 0; i < customSelects.length; i ++) {
+        
+        var selectElement = customSelects[i].getElementsByTagName('select')[0]; // get the first select inside the div
+        customSelects[i].innerHTML = '';
+        customSelects[i].appendChild(selectElement);
+        var selectedItem = document.createElement('div'); // create a new div to represent the selected item
+        selectedItem.className = 'select-selected';
+        selectedItem.innerHTML = selectElement.options[selectElement.selectedIndex].innerHTML; // set the new div's inner html to that of the selected item's
+        customSelects[i].appendChild(selectedItem); // append this new item to the custom select
+        
+        var selectItems = document.createElement('div');
+        selectItems.className = 'select-items';
+        selectItems.classList.add('select-hide');
+        
+        for (var j = 0; j < selectElement.length; j ++) {
+            var option = document.createElement('div');
+            option.innerHTML = selectElement.options[j].innerHTML;
+            option.addEventListener('click', function() {
+                var select = this.parentNode.parentNode.getElementsByTagName('select')[0];
+                var selected = this.parentNode.previousSibling;
+                
+                for (var i = 0; i < select.length; i ++) {
+                    if (select.options[i].innerHTML == this.innerHTML) {
+                        select.selectedIndex = i;
+                        font = select.value;
+                        selected.innerHTML = this.innerHTML;
+                        var same = this.parentNode.getElementsByClassName('same-as-selected');
+                        
+                        for (var j = 0; j < same.length; j ++) {
+                            same[j].removeAttribute('class');
+                        }
+                        
+                        this.setAttribute('class', 'same-as-selected');
+                        break;
+                    }
+                }
+                selected.click();
+            });
+        selectItems.appendChild(option);
+        }
+        customSelects[i].appendChild(selectItems);
+        
+        selectedItem.addEventListener('click', function (e) {
+            e.stopPropagation();
+            closeAllSelect(this);
+            this.nextSibling.classList.toggle('select-hide');
+            this.classList.toggle('select-arrow-active');
+        });
+    }
+}
+
+function closeAllSelect(elmnt) {
+ 
+  var selectItems, selected, arrNo = [];
+  selectItems = document.getElementsByClassName("select-items");
+  selected = document.getElementsByClassName("select-selected");
+  for (var i = 0; i < selected.length; i ++) {
+    if (elmnt == selected[i]) {
+      arrNo.push(i)
+    } else {
+      selected[i].classList.remove("select-arrow-active");
+    }
+  }
+  for (i = 0; i < selectItems.length; i ++) {
+    if (arrNo.indexOf(i)) {
+      selectItems[i].classList.add("select-hide");
+    }
+  }
 }

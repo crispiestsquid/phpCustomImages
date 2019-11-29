@@ -2,9 +2,17 @@
 
 $string = $_GET['text'];
 
+$hexColor = $_GET['color'];
+
+$colorR = hexdec(substr($hexColor, 0, 2));
+
+$colorG = hexdec(substr($hexColor, 2, 2));
+
+$colorB = hexdec(substr($hexColor, 4, 2));
+
 $size = $_GET['size'];
 
-$font = 'fonts/AndallanDemo.ttf';
+$font = "fonts/{$_GET['font']}.ttf";
 
 $fname = $_GET['fname'];
 
@@ -16,7 +24,26 @@ $xoffset = $_GET['x'];
 
 $yoffset = $_GET['y'];
 
-$checked = $_GET['checked'];
+/*$myfile = fopen("images/newfile.txt", "w") or die("Unable to open file!");
+$txt = "Hex: " . $hexColor . "\n";
+fwrite($myfile, $txt);
+$txt = "R: " . $colorR . "\n";
+fwrite($myfile, $txt);
+$txt = "G: " . $colorG . "\n";
+fwrite($myfile, $txt);
+$txt = "B: " . $colorB . "\n";
+fwrite($myfile, $txt);
+$txt = "Size: " . $size . "\n";
+fwrite($myfile, $txt);
+$txt = "File Name: " . $fname . "\n";
+fwrite($myfile, $txt);
+$txt = "File Ext: " . $ext . "\n";
+fwrite($myfile, $txt);
+$txt = "X: " . $xoffset . "\n";
+fwrite($myfile, $txt);
+$txt = "Y: " . $yoffset . "\n";
+fwrite($myfile, $txt);
+fclose($myfile);*/
 
 $box = imagettfbbox($size, 0, $font, $string);
 
@@ -37,17 +64,14 @@ else if ($ext == 'png') {
     $contentType = 'image/png';
 }
 
-
-$overlay = imagecreatefrompng('images/thanksgiving-overlay.png');
-
-$white = imagecolorallocate($im, 255, 255, 255);
-if ($white === FALSE) { // note the === -> strict type comparison
-    $white = imagecolorclosest($im, 255, 255, 255);
+$color = imagecolorallocate($im, $colorR, $colorG, $colorB);
+if ($color === FALSE) {
+    $color = imagecolorclosest($im, $colorR, $colorG, $colorB);
 }
 
-$grey = imagecolorallocate($im, 148, 107, 3);
-if ($grey === FALSE) { // note the === -> strict type comparison
-    $grey = imagecolorclosest($im, 148, 107, 3);
+$grey = imagecolorallocate($im, 105, 105, 105);
+if ($grey === FALSE) {
+    $grey = imagecolorclosest($im, 105, 105, 105);
 }
 
 $x = (imagesx($im) / 2) - ($width / 2) + $xoffset;
@@ -56,11 +80,7 @@ $y = (imagesy($im) / 2) + ($height / 2) + $yoffset;
 
 imagettftext($im, $size, 0, $x -3, $y -1, $grey, $font, $string);
 
-imagettftext($im, $size, 0, $x, $y, $white, $font, $string);
-
-if ($checked == 'true') {
-imagecopy($im, $overlay, 0, 0, 0, 0, imagesx($overlay), imagesy($overlay));
-}
+imagettftext($im, $size, 0, $x, $y, $color, $font, $string);
 
 header('Content-type: ' . $contentType);
 

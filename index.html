@@ -4,23 +4,100 @@
 <meta charset="UTF-8">
 <script src="main.js"></script>
 <link rel="stylesheet" type="text/css" href="main.css" >
-<title>Untitled Document</title>
+<title>Custom Images</title>
 </head>
 
 <body>
     
+    <div id="header">
+    
+        <h1><span style="color: #FF4929;"><em>CUSTOM</em></span>IMAGE</h1>
+    
+    </div>
+    
     <div id="drop-area">
         <form class="my-form">
             <p>Upload multiple files with the file dialog or by dragging and dropping images onto the dashed region</p>
-            <input type="file" id="fileElem" multiple accept="image/*">
+            <input type="file" id="fileElem" multiple accept=".png, .jpg, .ttf">
             <label class="button" for="fileElem">Select some files</label>
         </form>
         <progress id="progress-bar" max="100" value="0"></progress>
         <div id="gallery"></div>
     </div>
     <div id="images"></div>
+    <div id="options">
+        <form>
+            <div class="row">
+                <div class="col-25">
+                    <label for="text">Text</label>
+                </div>
+                <div class="col-75">
+                    <input type="text" name="text" id="text" value="Sample">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-25">
+                    <label for="size">Text Size</label>
+                </div>
+                <div class="col-75">
+                    <input type="number" name="size" id="size" value="75">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-25">
+                    <label id="test" for="font">Font</label>
+                </div>
+                <div class="col-75">
+                    <div class="custom-select">
+                        <select id="font" name="font"></select>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-25">
+                    <label for="color">Text Color</label>
+                </div>
+                <div class="col-75">
+                    <input type="color" name="color" id="color">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-25">
+                    <label for="x">X Offset</label> 
+                </div>
+                <div class="col-75">
+                    <input type="number" name="x" id="x" value="0">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-25">
+                    <label for="y">Y Offset</label>
+                </div>
+                <div class="col-75">
+                    <input type="number" name="y" id="y" value="0">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-25">
+                    <label for="link">Link</label>
+                </div>
+                <div class="col-75">
+                    <input type="text" name="link" id="link" value="" readonly="true">
+                </div>
+            </div>
+            <div class="row">
+                <button id="update">Update</button>
+            </div>
+        </form>
+    </div>
     
-    <img id="sample" src="custom_image.php?text=Nicholas&size=75&fname=clock-tab-2&ext=jpg&x=0&y=15&checked=true" alt="Test" />
+    <div id="preview">
+        <img id="sample" src="custom_image.php?text=Sample&size=75&font=Pacifico&color=ffffff&fname=image-placeholder&ext=png&x=0&y=0" alt="Preview" />
+    </div>
+    <div id="footer">
+    <hr>
+    <p>&copy;2019 KevinLittleTech</p>
+  </div>
     
 </body>
 </html>

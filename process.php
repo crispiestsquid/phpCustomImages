@@ -4,8 +4,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_FILES['files'])) {
         
         $errors = [];
-        $path = 'images/';
-        $extensions = ['jpeg', 'jpg', 'png', 'gif'];
+        $extensions = ['jpeg', 'jpg', 'png', 'ttf'];
         
         $all_files = count($_FILES['files']['tmp_name']);
 
@@ -16,6 +15,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $file_type = $_FILES['files']['type'][$i];
             $file_size = $_FILES['files']['size'][$i];
             $file_ext = strtolower(end(explode('.', $_FILES['files']['name'][$i])));
+            
+            if ($file_ext == 'ttf') {
+                
+                $path = 'fonts/';
+            } 
+            else {
+                
+                $path = 'images/';
+            }
 
             $file = $path . $file_name;
             
